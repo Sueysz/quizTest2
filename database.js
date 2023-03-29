@@ -1,5 +1,4 @@
 import mysql from 'mysql2'
-
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -10,10 +9,28 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
-async function getQuiz(){
+export async function getQuizs(){
 const [rows] = await pool.query("SELECT * FROM quiz")
     return rows
 }
 
-const quiz = await getQuiz()
-console.log(quiz)
+export async function getQuiz(id){
+    const [rows] = await pool.query(`
+    SELECT *
+    FROM quiz
+    WHERE id = ?
+    `, [id])
+    return rows [0]
+}
+
+export async function createQuiz(title,description,question) {
+    const [result] = await pool.query(`
+    INSERT INTO quiz (title, description,question)
+    VALUES (?,?,?)
+    `, [title, description,question])
+    const id = result.insertId
+    return getQuiz(id)
+}
+
+const result = await createQuiz('test','test','test') 
+console.log(result)
